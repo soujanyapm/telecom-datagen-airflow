@@ -102,19 +102,16 @@ services:
       retries: 5
     restart: always
 
-  mysql:
-    image: debezium/example-mysql:0.9
-    container_name: mysql
-    restart: always
-    environment:
-      MYSQL_USER: 'mysqluser'
-      MYSQL_PASSWORD: 'mysqlpw'
-      MYSQL_ROOT_PASSWORD: 'debezium'
-      charset: "utf8"
-      cursor: "sscursor"
-      local_infile: "true"
-      unix_socket: "/var/socket"
-      ssl: "{\"cert\": \"/tmp/client-cert.pem\", \"ca\": \"/tmp/server-ca.pem\", \"key\": \"/tmp/client-key.pem\"}"
+  
+   mysql:
+	     image: mysql:5.7
+	     container_name: airflow_db
+	     environment:
+	            - MYSQL_ROOT_PASSWORD=root
+	            - MYSQL_DATABASE=inventory
+	            - MYSQL_USER=mysqluser
+	            - MYSQL_PASSWORD=mysqlpw
+	        command: mysqld --character-set-server=utf8 --collation-server=utf8_unicode_ci
     ports:
       - '3306:3306'
     expose:
