@@ -15,28 +15,34 @@ mydir=os.path.join(os.getcwd(),"dags/")
 def generate_data():
     conn = create_engine("mysql://mysqluser:mysqlpw@65.1.91.41:3306/inventory?ssl=%7B%22cert%22%3A+%22%2Ftmp%2Fclient-cert.pem%22%2C+%22ca%22%3A+%22%2Ftmp%2Fserver-ca.pem%22%2C+%22key%22%3A+%22%2Ftmp%2Fclient-key.pem%22%7D") # connect to server
     engine = create_engine('sqlite:///telecom.db', echo = True)
-    #dataset_header_name = mydir+"raw_cdr_data_header.csv"
-    dataset_name = mydir+"raw_cdr_data.csv" #C:\Users\DELL\Downloads\kafka-telecom-project\docker_airflow\dags\raw_cdr_data.csv
-
-    n = int(Variable.get('my_iterator'))
-    raw_cdr_data = pd.read_csv(dataset_name, header=None, low_memory=False)
-    idx = raw_cdr_data.columns.tolist()
-    new_df = pd.DataFrame(columns=idx)
-
-    new_df.loc[n] = raw_cdr_data.iloc[n]
-    call_dataset,service_dataset,device_dataset=split_df(new_df)
-
-    new_df.to_sql('raw_telecom',conn, if_exists='append')
-    call_dataset.to_sql('call_dataset_mysql',engine, if_exists='append')
-    service_dataset.to_sql('service_dataset_mysql',engine, if_exists='append')
-    device_dataset.to_sql('device_dataset_mysql',engine, if_exists='append')
-    sleep(10)
     
-    if(n>16738):
-        n=0
-    else:
-        n = n+1
-    Variable.set('my_iterator', n)
+    m = 0
+    while m<10:
+        dataset_name = mydir+"raw_cdr_data.csv" #C:\Users\DELL\Downloads\kafka-telecom-project\docker_airflow\dags\raw_cdr_data.csv
+        dataset_header_name = mydir+"raw_cdr_data_header.csv"
+        #n = int(Variable.get('my_iterator'))
+        
+        raw_cdr_data_header= pd.read_csv(dataset_header_name,low_memory=False)
+        raw_cdr_data = pd.read_csv(dataset_name, header=None, low_memory=False)
+        
+        df=raw_cdr_data_header.sample(n=1)
+        n=df.index[0]
+        print("n=",n)
+        raw_cdr_data=raw_cdr_data.iloc[n:(n+1),:]
+        
+        #idx = raw_cdr_data.columns.tolist()
+        #new_df = pd.DataFrame(columns=idx)
+
+        #new_df.loc[n] = raw_cdr_data.iloc[n]
+        call_dataset,service_dataset,device_dataset=split_df(raw_cdr_data)
+
+        df.to_sql('raw_telecom_data',conn, if_exists='append')
+        call_dataset.to_sql('call_dataset_mysql',engine, if_exists='append')
+        service_dataset.to_sql('service_dataset_mysql',engine, if_exists='append')
+        device_dataset.to_sql('device_dataset_mysql',engine, if_exists='append')
+        sleep(10)
+        m = m+1
+   
 
 default_args = {
     'owner': 'airflow',
