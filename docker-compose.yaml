@@ -11,7 +11,8 @@ x-airflow-common:
     AIRFLOW__CORE__FERNET_KEY: ''
     AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
     AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
-    AIRFLOW_CONN_MYSQL_DEFAULT: mysql://mysqluser:mysqlpw@192.168.1.5:3306/inventory?ssl=%7B%22cert%22%3A+%22%2Ftmp%2Fclient-cert.pem%22%2C+%22ca%22%3A+%22%2Ftmp%2Fserver-ca.pem%22%2C+%22key%22%3A+%22%2Ftmp%2Fclient-key.pem%22%7D
+    #AIRFLOW_CONN_MYSQL_DEFAULT: mysql://mysqluser:mysqlpw@192.168.1.5:3000/inventory
+    AIRFLOW_CONN_MYSQL_DEFAULT: mysql://airflow:airflow@192.168.1.5:3000/airflow
     AIRFLOW_CONN_AWS_DEFAULT: aws://?profile=airflow-spark1&s3_config_file=/opt/airflow/creds/s3&s3_config_format=aws
   volumes:
     - ./airflow-data/creds:/opt/airflow/creds
@@ -106,13 +107,14 @@ services:
     image: mysql:5.7
     container_name: airflow_db
     environment:
+            - MYSQL_ROOT_HOST=%
             - MYSQL_ROOT_PASSWORD=root
             - MYSQL_DATABASE=airflow
             - MYSQL_USER=airflow
             - MYSQL_PASSWORD=airflow
     command: mysqld --character-set-server=utf8 --collation-server=utf8_unicode_ci
     ports:
-      - '3306:3306'
+      - '3000:3306'
     expose:
       - '3306'
 

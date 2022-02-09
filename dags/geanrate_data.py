@@ -13,7 +13,7 @@ import os
 
 mydir=os.path.join(os.getcwd(),"dags/")
 def generate_data():
-    conn = create_engine("mysql://mysqluser:mysqlpw@65.1.91.41:3306/inventory?ssl=%7B%22cert%22%3A+%22%2Ftmp%2Fclient-cert.pem%22%2C+%22ca%22%3A+%22%2Ftmp%2Fserver-ca.pem%22%2C+%22key%22%3A+%22%2Ftmp%2Fclient-key.pem%22%7D") # connect to server
+    conn = create_engine("mysql://airflow:airflow@192.168.1.5:3000/airflow") # connect to server
     engine = create_engine('sqlite:///telecom.db', echo = True)
     
     m = 0
